@@ -59,6 +59,18 @@ class GeoController extends Controller
         return view('list', compact('photos'));
     }
 
+    public function edit(Request $request, $id)
+    {
+        $photo = Photo::findOrFail($id);
+        if($request->getMethod() == 'GET'){
+            return view('edit', compact('photo'));
+        }
+
+        $photo->fill($request->all());
+        $success = $photo->save();
+        return response()->json(['success' => $success, 'photo' => $photo->toArray()]);
+    }
+
     public function album()
     {
         $photos = $this->photos();

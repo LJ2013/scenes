@@ -18,5 +18,6 @@ Route::get('/album', 'GeoController@album');
 Route::get('/test', 'GeoController@test');
 Route::match(['GET', 'POST'], 'upload', 'GeoController@upload')->name('upload');
 Route::get('/list', 'GeoController@list')->name('list');
+Route::match(['GET', 'POST'], '/photo/{id}/edit', 'GeoController@edit')->name('edit');
 
 

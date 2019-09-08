@@ -14,6 +14,7 @@
             box-shadow:4px 4px 6px gray;
             width: 200px;
             position: relative;
+            cursor: pointer;
         }
         ul.photos li img{
             width: 100%;
@@ -76,7 +77,9 @@
     @foreach($photos as $photo)
     <li>
         <img src="{{ 'storage/thumbnails/'.$photo->filename }}" alt="经纬度：{{ $photo->longitude . ', ' . $photo->latitude }}" title="经纬度：{{ $photo->longitude . ', ' . $photo->latitude }}" name="{{ $photo->filename }}">
-        <div class="tools"><span class="glyphicon glyphicon-edit"  aria-hidden="true" onclick="edit()"></span></div>
+        <a class="tools" href="{{ route('edit', ['id' => $photo->id]) }}">
+            <span class="glyphicon glyphicon-edit"  aria-hidden="true"></span>
+        </a>
     </li>
     @endforeach
 </ul>
