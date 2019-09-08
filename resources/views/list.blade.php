@@ -13,10 +13,36 @@
             padding: 5px;
             box-shadow:4px 4px 6px gray;
             width: 200px;
+            position: relative;
         }
         ul.photos li img{
             width: 100%;
         }
+        .photos .tools{
+            position: absolute;
+            width:30px;
+            height: 20px;
+            padding: 2px;
+            background-color: black;
+            color: white;
+            right: 0px;
+            top: 0px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .photos .tools:hover{
+            background-color: white;
+            color: black;
+        }
+
+        /*ul.photos li span:nth-child(2){*/
+            /*position: absolute;*/
+            /*width:20px;*/
+            /*height: 20px;*/
+            /*left: 40px;*/
+            /*top: 0;*/
+        /*}*/
         .clearfix{
             clear: both;
         }
@@ -30,6 +56,7 @@
             align-items: center;
             justify-content: space-between;
         }
+
     </style>
 @endsection
 @section('content')
@@ -48,10 +75,12 @@
 <ul class="photos">
     @foreach($photos as $photo)
     <li>
-        <img src="{{ 'storage/thumbnails/'.$photo->filename }}" alt="经纬度：{{ $photo->longitude . ', ' . $photo->latitude }}" name="{{ $photo->filename }}">
+        <img src="{{ 'storage/thumbnails/'.$photo->filename }}" alt="经纬度：{{ $photo->longitude . ', ' . $photo->latitude }}" title="经纬度：{{ $photo->longitude . ', ' . $photo->latitude }}" name="{{ $photo->filename }}">
+        <div class="tools"><span class="glyphicon glyphicon-edit"  aria-hidden="true" onclick="edit()"></span></div>
     </li>
     @endforeach
 </ul>
+<div class="clearfix"></div>
 
 <div id="myModal" class="modal fade m-auto" tabindex="-1" role="dialog" style="display: none;">
     <div class="modal-dialog w-75">
@@ -111,6 +140,11 @@
                     }
                 }
             });
+        }
+
+        function edit()
+        {
+
         }
     </script>
 @endsection
