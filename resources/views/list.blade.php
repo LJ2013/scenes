@@ -80,6 +80,7 @@
         <a class="tools" href="{{ route('edit', ['id' => $photo->id]) }}">
             <span class="glyphicon glyphicon-edit"  aria-hidden="true"></span>
         </a>
+        <div style="text-align: center;font-size: 12px;padding-top: 3px;padding-bottom: 3px;">{{ $photo->filename }}</div>
     </li>
     @endforeach
 </ul>

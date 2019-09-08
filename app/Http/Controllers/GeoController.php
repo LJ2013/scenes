@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Photo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class GeoController extends Controller
 {
@@ -67,8 +68,16 @@ class GeoController extends Controller
         }
 
         $photo->fill($request->all());
-        $success = $photo->save();
-        return response()->json(['success' => $success, 'photo' => $photo->toArray()]);
+        $success1 = $photo->save();
+
+        //调用脚本修改图片GPS附加信息
+        $script = '/Users/zhanglianjun/src/py/geoalbum/index.py';
+        $file = storage_path('app/public/photos/'.$photo->filename);
+        $cmd = "python $script set_gps $file $photo->longitude $photo->latitude";
+        $output = $this->execute($cmd);
+        $success2 = $output->success ?? false;
+
+        return response()->json(['success' => $success1 && $success2, 'photo' => $photo->toArray()]);
     }
 
     public function album()
@@ -81,8 +90,8 @@ class GeoController extends Controller
     {
         $dir = storage_path('app/public/photos');
         $script = '/Users/zhanglianjun/src/py/geoalbum/index.py';
-        $output = shell_exec("python $script $dir");
-        $photos = json_decode($output);
+        $cmd = "python $script get_gps $dir";
+        $photos = $this->execute($cmd);
 
         $photos = json_encode($photos, JSON_FORCE_OBJECT);
         return $photos;
@@ -104,5 +113,14 @@ class GeoController extends Controller
     {
         $i = strrpos($filename, '.');
         return substr_replace($filename, '_'.uniqid(), $i, 0);
+    }
+
+    public function execute($cmd)
+    {
+        Log::info('shell-commands: '.$cmd);
+        $output = shell_exec($cmd);
+        Log::info('shell-output: '. var_export($output, true));
+        $obj = json_decode($output);
+        return $obj;
     }
 }
