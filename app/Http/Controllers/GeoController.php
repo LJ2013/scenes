@@ -39,7 +39,10 @@ class GeoController extends Controller
             $dir = storage_path('app/public/photos');
             $pathname = "$dir/$name";
             move_uploaded_file($_FILES['photo']['tmp_name'], $pathname);
-            $gps = current($this->gps($pathname));
+
+            $script = base_path('bin/geo.py');
+            $cmd = "$script get_gps $pathname";
+            $gps = current((array)$this->execute($cmd));
 
             $photo = new Photo();
             $photo->fill([
