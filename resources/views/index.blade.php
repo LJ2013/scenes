@@ -14,7 +14,7 @@
 
 @section('my_navbar')
     <!-- --经纬度指示器-->
-    <div>当前经纬度：<span id="current_axis"></span></div>
+    <div>当前经纬度：<span id="current_axis">点击地图获取</span></div>
 @endsection
 
 @section('content')
@@ -48,7 +48,7 @@
         map.centerAndZoom(new BMap.Point(116.404, 39.915), 5);
         map.enableScrollWheelZoom();
 
-        /*
+
         function throttle(fn, interval) {
             let last = 0
             return function () {
@@ -66,7 +66,7 @@
             document.getElementById('current_axis').innerText = e.point.lng + ", " + e.point.lat;
         }, 1000);
         map.addEventListener('click', function(e){return hover_axis(e);});
-        */
+
 
         var markers = [];
         let name, icon1, mark1, thumbnail1;
