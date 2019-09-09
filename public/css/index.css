@@ -63,7 +63,7 @@
     display:inline-block;
     position:absolute;
     top:275px;
-    left:50px;
+    left:-60px;
     opacity:.7;
     cursor:pointer;
 }
@@ -76,7 +76,7 @@
     display:inline-block;
     position:absolute;
     top:275px;
-    right:50px;
+    right:20px;
     opacity:.7;
     cursor:pointer;
 }

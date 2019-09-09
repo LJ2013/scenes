@@ -42,7 +42,7 @@
                         <li class="nav-item"><a href="{{ url('/') }}" class="nav-link @if(\Illuminate\Support\Facades\Route::currentRouteName() == 'index') active @endif">首页</a></li>
                         <li class="nav-item"><a href="{{ route('list') }}" class="nav-link @if(\Illuminate\Support\Facades\Route::currentRouteName() == 'list') active @endif">相册</a></li>
                     </ul>
-
+                    @yield('my_navbar')
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
                         <!-- Authentication Links -->
