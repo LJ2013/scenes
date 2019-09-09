@@ -59,7 +59,7 @@ class GeoController extends Controller
 
     public function list()
     {
-        $photos = Photo::latest()->paginate(3);
+        $photos = Photo::latest()->paginate(20);
         return view('list', compact('photos'));
     }
 

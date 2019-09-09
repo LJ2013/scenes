@@ -13,11 +13,14 @@
             padding: 5px;
             box-shadow:4px 4px 6px gray;
             width: 200px;
+            height: 200px;
             position: relative;
             cursor: pointer;
+            text-align: center;
         }
         ul.photos li img{
-            width: 100%;
+            height: 90%;
+            max-width: 100%;
         }
         .photos .tools{
             position: absolute;
