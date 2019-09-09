@@ -39,6 +39,170 @@
         <div id="allmap" style="height: 100%;position: absolute;"></div>
     </div>
 
+
+
+    <script type="text/javascript">
+        let points = JSON.parse('<?php echo $points; ?>');
+        // 百度地图API功能
+        var map = new BMap.Map("allmap");
+        map.centerAndZoom(new BMap.Point(116.404, 39.915), 5);
+        map.enableScrollWheelZoom();
+
+        /*
+        function throttle(fn, interval) {
+            let last = 0
+            return function () {
+                let context = this
+                let args = arguments
+                let now = +new Date()
+                if (now - last >= interval) {
+                    last = now;
+                    fn.apply(context, args);
+                }
+            }
+        }
+        const hover_axis = throttle(function(e){
+            console.log('sss')
+            document.getElementById('current_axis').innerText = e.point.lng + ", " + e.point.lat;
+        }, 1000);
+        map.addEventListener('click', function(e){return hover_axis(e);});
+        */
+
+        var markers = [];
+        let name, icon1, mark1, thumbnail1;
+        console.log(points);
+        for(name in points){
+            if(!points[name]['GPSLongitude']) continue;
+            //缩略图标示
+            thumbnail1 = '/storage/thumbnails/' + name;
+            icon1 = new BMap.Icon(thumbnail1,new BMap.Size(128,128));
+            mark1 = new BMap.Marker(new BMap.Point(points[name]['GPSLongitude'], points[name]['GPSLatitude']),{icon: icon1, title: name});
+            markers.push(mark1)
+        }
+
+
+        markerClustersPoint();
+        map.addEventListener('zoomend', function () {
+            markerClustersPoint(markers)
+        });
+
+
+        //修改点聚合显示方式，点击聚合点改为显示相册而非散点
+        function markerClustersPoint()
+        {
+            let markerClusterer;
+            if (markerClusterer) {
+                markerClusterer.clearMarkers();//清除聚合
+            }
+
+            markerClusterer = new BMapLib.MarkerClusterer(this.map, {
+                markers: markers,
+                minClusterSize: 3, //最小的聚合数量，小于该数量的不能成为一个聚合，默认为2
+                styles: [
+                    {
+                        //此处仅放置style，不要写任何内容，否则会有默认聚合的数字显示溢出
+                        // url: "img/info.png",
+                        // size: new BMap.Size(0, 0)
+                    }
+                ]
+            });
+            console.log("进入聚合函数markerClusterer", markerClusterer);
+
+            // 拿到所有的聚合点
+            //markerClusterer中的 _clusters是一个数组，包含了可视范围的所有聚合点
+            var clusters = markerClusterer._clusters;
+            var oldmk = [];
+
+            //所有聚合
+            for (var i = 0; i < clusters.length; i++) {
+                //cluster[i]._markers中包含此聚合点的所有marker集合
+                //marker长度大于2时不进行聚合效果显示
+                // if (cluster[i]._markers.length < 2) continue;
+                //自定义函数内容，可进行聚合点数据获取操作
+                //......
+                //......
+                //添加marker
+                oldmk.push(addMarkerCluser(clusters[i]));
+            }
+
+
+        }
+
+        // 标记自定义marker
+        function addMarkerCluser(cluster)
+        {
+            var markerdef = new BMap.Marker(cluster._center, {
+                // icon: 设置marker样式
+                icon: new BMap.Symbol(BMap_Symbol_SHAPE_CIRCLE, {
+                    scale: 20,
+                    strokeWeight: 1,
+                    strokeColor: "white",
+                    fillColor: "blue",
+                    fillOpacity: 0.59
+                }),
+            });
+            //设置marker的label
+            let label = new BMap.Label(cluster._markers.length, {
+                offset: new BMap.Size(15, 12)
+            });
+            //设置label样式
+            label.setStyle({
+                color: "#fff",
+                fontSize: "14px",
+                backgroundColor: "0.05",
+                border: "0px "
+            });
+            markerdef.setLabel(label);
+            //监听点击事件
+            markerdef.addEventListener("click", function () {
+                console.log("点击自定义聚合maker");
+
+                let cluster_markers = cluster._markers;
+                var thumbnail = document.getElementById('thumbnail')
+                thumbnail.innerHTML = "";
+
+                //大图
+                let img = document.getElementById('mainImg');
+                img.src = '/storage/photos/' + cluster_markers[0]['z']['title'];
+                img.onload = function(){
+                    document.getElementById('album').style.visibility = 'visible';
+                    document.getElementById('bg-container').style.visibility = 'visible';
+                };
+                //缩略图列表
+                for (let i = 0; i < cluster_markers.length; i++) {
+                    let url = '/storage/thumbnails/' + cluster_markers[i]['z']['title'];
+
+                    if( i == 0 ){
+                        let li = document.createElement("li");
+                        li.setAttribute("id","on");
+                        let newImg = document.createElement("img");
+                        newImg.setAttribute("src", url);
+                        newImg.setAttribute("onclick","imgOn(this)");
+                        li.appendChild(newImg);
+                        thumbnail.appendChild(li);
+                    }else {
+                        let li = document.createElement("li");
+                        let newImg = document.createElement("img");
+                        newImg.setAttribute("src", url);
+                        newImg.setAttribute("onclick","imgOn(this)");
+                        li.appendChild(newImg);
+                        thumbnail.appendChild(li);
+                        if(i > 7){
+                            document.getElementById('left').style.visibility = "visible";
+                            document.getElementById('right').style.visibility = "visible";
+                        }
+                    }
+
+                }
+
+            });
+            map.addOverlay(markerdef);
+            return markerdef;
+        }
+    </script>
+
+
+
     <script>
         //关闭相册
         function closeAlbum()
@@ -110,183 +274,6 @@
 
 
             }
-        }
-    </script>
-
-    <script type="text/javascript">
-        let points = JSON.parse('<?php echo $points; ?>');
-        // 百度地图API功能
-        var map = new BMap.Map("allmap");
-        map.centerAndZoom(new BMap.Point(116.404, 39.915), 5);
-        map.enableScrollWheelZoom();
-
-        /*
-        function throttle(fn, interval) {
-            let last = 0
-            return function () {
-                let context = this
-                let args = arguments
-                let now = +new Date()
-                if (now - last >= interval) {
-                    last = now;
-                    fn.apply(context, args);
-                }
-            }
-        }
-        const hover_axis = throttle(function(e){
-            console.log('sss')
-            document.getElementById('current_axis').innerText = e.point.lng + ", " + e.point.lat;
-        }, 1000);
-        map.addEventListener('click', function(e){return hover_axis(e);});
-        */
-
-        var MAX = 10;
-        var markers = [];
-        var pt = null;
-
-        let name, icon1, mark1, thumbnail1;
-        console.log(points);
-        for(name in points){
-            //缩略图标示
-            thumbnail1 = '/storage/thumbnails/' + name;
-            icon1 = new BMap.Icon(thumbnail1,new BMap.Size(128,128));
-            mark1 = new BMap.Marker(new BMap.Point(points[name]['GPSLongitude'], points[name]['GPSLatitude']),{icon: icon1, title: name});
-            // (function(marker, name){
-            //     marker.addEventListener('click', function(){
-            //         // this.openInfoWindow(new BMap.InfoWindow(name));
-            //         let img = document.getElementById('mainImg');
-            //         img.src = '/storage/photos/' + name;
-            //         img.onload = function(){
-            //             document.getElementById('album').style.visibility = 'visible';
-            //             document.getElementById('bg-container').style.visibility = 'visible';
-            //         }
-            //     });
-            // })(mark1, name);
-
-            markers.push(mark1)
-        }
-
-
-        markerClustersPoint();
-        map.addEventListener('zoomend', function () {
-            markerClustersPoint(markers)
-        });
-
-
-        //修改点聚合显示方式，点击聚合点改为显示相册而非散点
-        function markerClustersPoint()
-        {
-            let markerClusterer;
-            if (markerClusterer) {
-                markerClusterer.clearMarkers();//清除聚合
-            }
-
-            markerClusterer = new BMapLib.MarkerClusterer(this.map, {
-                markers: markers,
-                minClusterSize: 3, //最小的聚合数量，小于该数量的不能成为一个聚合，默认为2
-                styles: [
-                    {
-                        //此处仅放置style，不要写任何内容，否则会有默认聚合的数字显示溢出
-                        // url: "img/info.png",
-                        // size: new BMap.Size(0, 0)
-                    }
-                ]
-            });
-            console.log("进入聚合函数markerClusterer", markerClusterer);
-            //
-            // 拿到所有的聚合点
-            //markerClusterer中的 _clusters是一个数组，包含了可视范围的所有聚合点
-            var cluster = markerClusterer._clusters;
-            var oldmk = [];
-
-            //所有聚合
-            for (var i = 0; i < cluster.length; i++) {
-                //cluster[i]._markers中包含此聚合点的所有marker集合
-                //marker长度大于2时不进行聚合效果显示
-                if (cluster[i]._markers.length < 2) continue;
-                //自定义函数内容，可进行聚合点数据获取操作
-                //......
-                //......
-                //拿到聚合点中的marker数量，用于数字显示
-                var cluserMakerSum = cluster[i]._markers.length;
-                //添加marker
-                oldmk.push(addMarkerCluser(cluster[i], cluserMakerSum));
-            }
-
-
-        }
-
-        // 标记自定义marker
-        function addMarkerCluser(cluster, count)
-        {
-            var markerdef = new BMap.Marker(cluster._center, {
-                // icon: 设置marker样式
-                icon: new BMap.Symbol(BMap_Symbol_SHAPE_CIRCLE, {
-                    scale: 20,
-                    strokeWeight: 1,
-                    strokeColor: "white",
-                    fillColor: "blue",
-                    fillOpacity: 0.59
-                })
-            });
-            //设置marker的label
-            var labelTitleCluser = count;
-            let label = new BMap.Label(labelTitleCluser, {
-                offset: new BMap.Size(12, 12)
-            });
-            //设置label样式
-            label.setStyle({
-                color: "#fff",
-                fontSize: "14px",
-                backgroundColor: "0.05",
-                border: "0px "
-            });
-            markerdef.setLabel(label);
-            //监听点击事件
-            markerdef.addEventListener("click", function () {
-                console.log("点击自定义聚合maker");
-
-                let cluster_markers = cluster._markers;
-                var thumbnail = document.getElementById('thumbnail')
-                thumbnail.innerHTML = "";
-
-                //大图
-                let img = document.getElementById('mainImg');
-                img.src = '/storage/photos/' + cluster_markers[0]['z']['title'];
-                img.onload = function(){
-                    document.getElementById('album').style.visibility = 'visible';
-                    document.getElementById('bg-container').style.visibility = 'visible';
-                };
-                //缩略图列表
-                for (let i = 0; i < cluster_markers.length; i++) {
-                    let url = '/storage/thumbnails/' + cluster_markers[i]['z']['title'];
-
-                    if( i == 0 ){
-                        let li = document.createElement("li");
-                        li.setAttribute("id","on");
-                        let newImg = document.createElement("img");
-                        newImg.setAttribute("src", url);
-                        newImg.setAttribute("onclick","imgOn(this)");
-                        li.appendChild(newImg);
-                        thumbnail.appendChild(li);
-                    }else {
-                        let li = document.createElement("li");
-                        let newImg = document.createElement("img");
-                        newImg.setAttribute("src", url);
-                        newImg.setAttribute("onclick","imgOn(this)");
-                        li.appendChild(newImg);
-                        thumbnail.appendChild(li);
-                        if(i > 7){
-                            document.getElementById('left').style.visibility = "visible";
-                            document.getElementById('right').style.visibility = "visible";
-                        }
-                    }
-
-                }
-
-            });
-            map.addOverlay(markerdef);
-            return markerdef;
         }
     </script>
 @endsection
