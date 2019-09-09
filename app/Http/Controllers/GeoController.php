@@ -71,7 +71,7 @@ class GeoController extends Controller
         $success1 = $photo->save();
 
         //调用脚本修改图片GPS附加信息
-        $script = '/Users/zhanglianjun/src/py/geoalbum/index.py';
+        $script = base_path('bin/geo.py');
         $file = storage_path('app/public/photos/'.$photo->filename);
         $cmd = "python $script set_gps $file $photo->longitude $photo->latitude";
         $output = $this->execute($cmd);
@@ -89,7 +89,7 @@ class GeoController extends Controller
     private function photos()
     {
         $dir = storage_path('app/public/photos');
-        $script = '/Users/zhanglianjun/src/py/geoalbum/index.py';
+        $script = base_path('bin/geo.py');
         $cmd = "python $script get_gps $dir";
         $photos = $this->execute($cmd);
 
@@ -99,7 +99,7 @@ class GeoController extends Controller
 
     private function gps($file)
     {
-        $script = '/Users/zhanglianjun/src/py/geoalbum/index.py';
+        $script = base_path('bin/geo.py');
         $output = shell_exec("python $script $file");
         $photo = json_decode($output, true);
         return $photo;
