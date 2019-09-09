@@ -14,7 +14,7 @@
 
 @section('my_navbar')
     <!-- --经纬度指示器-->
-    <div>当前经纬度：<span id="current_axis">点击地图获取</span></div>
+    <div>当前经纬度：<span id="current_axis" style="color: blue"></span>（点击地图获取）</div>
 @endsection
 
 @section('content')
@@ -62,7 +62,6 @@
             }
         }
         const hover_axis = throttle(function(e){
-            console.log('sss')
             document.getElementById('current_axis').innerText = e.point.lng + ", " + e.point.lat;
         }, 1000);
         map.addEventListener('click', function(e){return hover_axis(e);});
