@@ -80,8 +80,9 @@ def do_batch(basedir):
 
 
 if __name__ == '__main__':
-    basedir = '/Users/zhanglianjun/www/scenes/'
-    do_batch(basedir)
+    if len(sys.argv) > 1:
+        basedir = sys.argv[1]
+        do_batch(basedir)
 
 
 
