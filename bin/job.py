@@ -8,8 +8,9 @@ import sqlite3
 from gps_helper import find_GPS_image as get_gps
 
 
-def do_batch(dir = None):
-    conn = sqlite3.connect('/Users/zhanglianjun/www/scenes/database/scenes.db')
+def do_batch(basedir):
+    db_dir = os.path.join(basedir, 'database/scenes.db')
+    conn = sqlite3.connect(db_dir)
     c = conn.cursor()
 
     # c.execute('''DROP TABLE IF EXISTS `photos`''')
@@ -27,8 +28,7 @@ def do_batch(dir = None):
     );
     ''')
 
-    if dir is None:
-        dir = os.path.join(os.path.dirname(__file__), 'mapAlbum/photos')
+    dir = os.path.join(basedir, 'storage/app/public/photos')
     thumbnail_dir = os.path.join(dir, '../thumbnails/')
     compress_dir = os.path.join(dir, '../compressed/')
     if not os.path.exists(thumbnail_dir):
@@ -80,8 +80,8 @@ def do_batch(dir = None):
 
 
 if __name__ == '__main__':
-    dir = '/Users/zhanglianjun/www/scenes/storage/app/public/photos'
-    do_batch(dir)
+    basedir = '/Users/zhanglianjun/www/scenes/'
+    do_batch(basedir)
 
 
 
