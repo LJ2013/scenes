@@ -9,7 +9,7 @@ from gps_helper import find_GPS_image as get_gps
 
 
 def do_batch(dir = None):
-    conn = sqlite3.connect('/Users/zhanglianjun/www/scenes/storage/app/geo_album.db')
+    conn = sqlite3.connect('/Users/zhanglianjun/www/scenes/database/scenes.db')
     c = conn.cursor()
 
     # c.execute('''DROP TABLE IF EXISTS `photos`''')

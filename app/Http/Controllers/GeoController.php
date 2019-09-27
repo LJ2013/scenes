@@ -2,22 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\PhotoJob;
 use App\Photo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Helpers\Tools;
 
 class GeoController extends Controller
 {
     public function test()
     {
+        return Photo::all();
         return view('test');
     }
     //图片管理页面
     public function index()
     {
-//        $photos = Photo::all();
-//        $photos = $photos->toJson();
-        $photos = $this->photos();
+        $photos = Photo::all();
+        $photos = $photos->toJson();
         return view('index', ['points' => $photos]);
     }
 
@@ -26,34 +28,23 @@ class GeoController extends Controller
         if($request->getMethod() == 'GET'){
             return view('upload');
         }
+
+
         if(!$request->hasFile('photo') || !($file = $request->file('photo'))->isValid()){
             return;
         }
         $file = $request->file('photo');
-
         $name = $file->getClientOriginalName();
         if(Photo::where('filename', $name)->exists()){
             $data = ['success' => false, 'message' => '失败：存在同名文件！'];
-        }else{
-//            $success = $file->storeAs($dir, $uniqueName); //写不上的bug
+        }else {
+            //$success = $file->storeAs($dir, $uniqueName); //写不上的bug
             $dir = storage_path('app/public/photos');
             $pathname = "$dir/$name";
             move_uploaded_file($_FILES['photo']['tmp_name'], $pathname);
-
-            $script = base_path('bin/geo.py');
-            $cmd = "python $script get_gps $pathname";
-            $gps = current((array)$this->execute($cmd));
-
-            $photo = new Photo();
-            $photo->fill([
-                'filename' => $name,
-                'longitude' => $gps->GPSLongitude ?? null,
-                'latitude' => $gps->GPSLatitude ?? null,
-            ]);
-            $success = $photo->save();
-            $data = ['success' => $success, 'data' => $photo->toArray()];
+            PhotoJob::dispatch($name);
+            $data = ['success' => true];
         }
-
         return \response()->json($data);
     }
 
@@ -77,7 +68,7 @@ class GeoController extends Controller
         $script = base_path('bin/geo.py');
         $file = storage_path('app/public/photos/'.$photo->filename);
         $cmd = "python $script set_gps $file $photo->longitude $photo->latitude";
-        $output = $this->execute($cmd);
+        $output = Tools::execute($cmd);
         $success2 = $output->success ?? false;
 
         return response()->json(['success' => $success1 && $success2, 'photo' => $photo->toArray()]);
@@ -94,7 +85,7 @@ class GeoController extends Controller
         $dir = storage_path('app/public/photos');
         $script = base_path('bin/geo.py');
         $cmd = "python $script get_gps $dir";
-        $photos = $this->execute($cmd);
+        $photos = Tools::execute($cmd);
 
         $photos = json_encode($photos, JSON_FORCE_OBJECT);
         return $photos;
@@ -118,12 +109,9 @@ class GeoController extends Controller
         return substr_replace($filename, '_'.uniqid(), $i, 0);
     }
 
-    public function execute($cmd)
+
+    public function testjob()
     {
-        Log::info('shell-commands: '.$cmd);
-        $output = shell_exec($cmd);
-        Log::info('shell-output: '. var_export($output, true));
-        $obj = json_decode($output);
-        return $obj;
+        PhotoJob::dispatch('shit');
     }
 }

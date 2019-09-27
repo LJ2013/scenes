@@ -42,40 +42,42 @@
 
 
     <script type="text/javascript">
-        let points = JSON.parse('<?php echo $points; ?>');
+        let photos = JSON.parse('<?php echo $points; ?>');
+        console.log(photos);
+
         // 百度地图API功能
         var map = new BMap.Map("allmap");
         map.centerAndZoom(new BMap.Point(116.404, 39.915), 5);
         map.enableScrollWheelZoom();
 
 
-        function throttle(fn, interval) {
-            let last = 0
-            return function () {
-                let context = this
-                let args = arguments
-                let now = +new Date()
-                if (now - last >= interval) {
-                    last = now;
-                    fn.apply(context, args);
-                }
-            }
-        }
-        const hover_axis = throttle(function(e){
-            document.getElementById('current_axis').innerText = e.point.lng + ", " + e.point.lat;
-        }, 1000);
-        map.addEventListener('click', function(e){return hover_axis(e);});
+        // function throttle(fn, interval) {
+        //     let last = 0
+        //     return function () {
+        //         let context = this
+        //         let args = arguments
+        //         let now = +new Date()
+        //         if (now - last >= interval) {
+        //             last = now;
+        //             fn.apply(context, args);
+        //         }
+        //     }
+        // }
+        // const hover_axis = throttle(function(e){
+        //     document.getElementById('current_axis').innerText = e.point.lng + ", " + e.point.lat;
+        // }, 1000);
+        // map.addEventListener('click', function(e){return hover_axis(e);});
 
 
         var markers = [];
-        let name, icon1, mark1, thumbnail1;
-        console.log(points);
-        for(name in points){
-            if(!points[name]['GPSLongitude']) continue;
+        let photo, icon1, mark1, thumbnail1;
+
+        for(let i = 0; i < photos.length; i++){
             //缩略图标示
-            thumbnail1 = '/storage/thumbnails/' + name;
+            photo = photos[i];
+            thumbnail1 = '/storage/thumbnails/' + photo['filename'];
             icon1 = new BMap.Icon(thumbnail1,new BMap.Size(128,128));
-            mark1 = new BMap.Marker(new BMap.Point(points[name]['GPSLongitude'], points[name]['GPSLatitude']),{icon: icon1, title: name});
+            mark1 = new BMap.Marker(new BMap.Point(photo['GPSLongitude'], photo['GPSLatitude']),{icon: icon1, title: photo['filename']});
             markers.push(mark1)
         }
 
@@ -162,7 +164,7 @@
 
                 //大图
                 let img = document.getElementById('mainImg');
-                img.src = '/storage/photos/' + cluster_markers[0]['z']['title'];
+                img.src = '/storage/compressed/' + cluster_markers[0]['z']['title'];
                 img.onload = function(){
                     document.getElementById('album').style.visibility = 'visible';
                     document.getElementById('bg-container').style.visibility = 'visible';
@@ -216,7 +218,7 @@
 
         function photo_url(thumbnail_url)
         {
-            return thumbnail_url.replace('/thumbnails/', '/photos/');
+            return thumbnail_url.replace('/thumbnails/', '/compressed/');
         }
         //添加选中
         function imgOn(e)

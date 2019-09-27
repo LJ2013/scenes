@@ -21,3 +21,4 @@ Route::get('/list', 'GeoController@list')->name('list');
 Route::match(['GET', 'POST'], '/photo/{id}/edit', 'GeoController@edit')->name('edit');
 
 
+Route::get('testjob', 'GeoController@testjob');
