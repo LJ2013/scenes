@@ -5,7 +5,7 @@
         <form action="{{ route('edit', ['id' => $photo->id]) }}" method="POST" enctype="multipart/form-data" onsubmit="update()">
             @csrf
             <div style="width: 300px;height: 300px;">
-                <img src="{{ asset('storage/thumbnails/'.$photo->filename) }}" alt="" style="height: 100%;">
+                <img src="{{ asset('storage/compressed/'.$photo->filename) }}" alt="" style="height: 100%;">
             </div>
             <div class="form-group">
                 <label class="col-form-label" for="longitude">经度(小数)</label>
